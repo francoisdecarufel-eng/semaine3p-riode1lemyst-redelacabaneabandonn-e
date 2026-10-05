@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Je me corrige - Le mystère de la cabane abandonnée</title>
+    <!-- Chargement de Tailwind CSS pour un design moderne et adaptatif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Police d'écriture ludique et hautement lisible pour le primaire -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome pour des icônes riches et engageantes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --font-primary: 'Nunito', sans-serif;
+        }
+        body {
+            font-family: var(--font-primary);
+            background-color: #1a1512;
+            background-image: radial-gradient(circle, #2d2015 0%, #110c08 100%);
+            color: #f4eae1;
+            user-select: none;
+        }
+        /* Style parchemin pour les fiches explicatives et défis */
+        .parchment {
+            background-color: #fcf5e9;
+            background-image: radial-gradient(circle, #fbf2e3 0%, #eddcb9 100%);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(139, 90, 43, 0.2);
+            border: 4px solid #8b5a2b;
+            color: #3b2314;
+        }
+        /* Effet de lueur mystérieuse style lanterne */
+        .lantern-glow {
+            box-shadow: 0 0 30px #f59e0b;
+        }
+        /* Animations de secousse pour les erreurs */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .animate-shake {
+            animation: shake 0.3s ease-in-out;
+        }
+        /* Style d'onglets actifs */
+        .tab-active {
+            background-color: #8b5a2b;
+            color: #fcf5e9;
+            border-color: #8b5a2b;
+            transform: translateY(-4px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden antialiased">
+
+    <header class="w-full bg-[#2a1b0e] border-b-4 border-[#8b5a2b] p-4 text-center relative shadow-lg">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Titre principal de l'activité -->
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-500 text-[#1a1108] p-3 rounded-full text-2xl animate-pulse shadow-md">
+                    <i class="fa-solid fa-compass"></i>
+                </div>
+                <div class="text-left">
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide text-amber-400">JE ME CORRIGE</h1>
+                    <p class="text-sm text-amber-200/80 font-bold">Le mystère de la cabane abandonnée • 4<sup>e</sup> année</p>
+                </div>
+            </div>
+            
+            <!-- Affichage du Score et de la progression -->
+            <div class="flex items-center gap-6 bg-[#1a1108] px-6 py-3 rounded-2xl border-2 border-[#8b5a2b]">
+                <div class="text-center">
+                    <span class="block text-xs uppercase tracking-wider text-amber-400 font-bold">Progression</span>
+                    <div class="flex items-center gap-2 mt-1">
+                        <div class="w-24 md:w-40 bg-gray-700 h-3 rounded-full overflow-hidden">
+                            <div id="global-progress" class="bg-amber-500 h-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <span id="progress-percent" class="text-sm font-black text-white">0%</span>
+                    </div>
+                </div>
+                <div class="border-l border-amber-600/30 pl-6 text-center">
+                    <span class="block text-xs uppercase tracking-wider text-amber-400 font-bold">Indices restants</span>
+                    <span id="hints-counter" class="text-lg font-black text-amber-300">💡 3</span>
+                </div>
+                <div class="border-l border-amber-600/30 pl-6 text-center">
+                    <span class="block text-xs uppercase tracking-wider text-amber-400 font-bold">Étoiles</span>
+                    <span id="stars-counter" class="text-lg font-black text-yellow-400">⭐️ 0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="w-full bg-[#1e130a] px-4 py-2 shadow-inner">
+        <div class="max-w-4xl mx-auto flex justify-center gap-4">
+            <button id="tab-discovery-btn" onclick="switchTab('discovery')" class="px-6 py-3 text-base md:text-lg font-bold rounded-xl border-b-4 border-transparent transition-all duration-200 hover:bg-[#8b5a2b]/20 flex items-center gap-2 tab-active">
+                <i class="fa-solid fa-book-open"></i> 1. Découverte &amp; Règles
+            </button>
+            <button id="tab-practice-btn" onclick="switchTab('practice')" class="px-6 py-3 text-base md:text-lg font-bold rounded-xl border-b-4 border-transparent transition-all duration-200 hover:bg-[#8b5a2b]/20 flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 2. Pratique interactive
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
+        
+        <!-- ================= ONGLET 1 : DÉCOUVERTE & EXPLICATIONS ================= -->
+        <section id="tab-discovery" class="space-y-6">
+            
+            <!-- Carte d'introduction au scénario -->
+            <div class="bg-[#2c1d11] p-6 rounded-3xl border-2 border-amber-800 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">
+                    <i class="fa-solid fa-house-chimney-crack"></i>
+                </div>
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <img src="https://placehold.co/150x150/2d2015/f59e0b?text=🏠" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🏠</text></svg>'" alt="Vieille cabane" class="w-32 h-32 rounded-2xl border-4 border-amber-600 shadow-inner">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-amber-300">L'aventure de la vieille cabane abandonnée</h2>
+                        <p class="text-sm md:text-base text-stone-200 mt-2 leading-relaxed">
+                            Soudain, un jeune explorateur découvre un mystérieux texte gravé sur les murs d'une cabane abandonnée près de la forêt. Le texte recèle des mystères, mais il est plein de fautes d'accord et de ponctuation ! Aide-le à restaurer le manuscrit en apprenant d'abord à repérer les <strong>Groupes du Nom (GN)</strong> et à appliquer la règle d'accord parfaite.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manuscrit mystérieux à découvrir -->
+            <div class="parchment p-8 rounded-3xl shadow-xl space-y-6 my-8"> <!-- Augmentation du padding (p-8) et marge verticale (my-8) -->
+                <div class="flex items-center gap-3 border-b-2 border-dashed border-[#8b5a2b]/30 pb-4">
+                    <span class="text-3xl">📜</span>
+                    <h3 class="text-xl font-black uppercase tracking-wider text-[#5c3a1d]">Le Manuscrit Poussiéreux (Texte original)</h3>
+                </div>
+                <div class="space-y-4 text-base md:text-xl italic leading-loose text-[#4a2e18]"> <!-- Augmentation de l'interligne (leading-loose) et de l'espace (space-y-4) -->
+                    <!-- Remplacement de "hier soir" par "soudain" -->
+                    <p class="pl-5 border-l-4 border-amber-600">soudain un jeune garçon découvre une vieille cabane abandonnée près de la forêt</p>
+                    <p class="pl-5 border-l-4 border-amber-600">le petit explorateur avance doucement vers la porte mystérieuse</p>
+                    <p class="pl-5 border-l-4 border-amber-600">dans la cabane une grande coffre poussiéreux cache un ancien trésor</p>
+                    <p class="pl-5 border-l-4 border-amber-600">le garçon observe les objets étrange sur la table ronde</p>
+                    <p class="pl-5 border-l-4 border-amber-600">une petite lampe brisée éclaire le sombre pièce</p>
+                    <p class="pl-5 border-l-4 border-amber-600">derrière le vieux meuble un chat noir regarde le visiteur curieux</p>
+                    <p class="pl-5 border-l-4 border-amber-600">le jeune garçon trouve une carte secret dans la boîte en bois</p>
+                    <p class="pl-5 border-l-4 border-amber-600">cette découverte incroyable change son aventure mystérieuse</p>
+                </div>
+            </div>
+
+            <!-- SECTION DIDACTIQUE : ÉTAPE PAR ÉTAPE -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-8"> <!-- Augmentation du gap (gap-8) et marge verticale (my-8) -->
+                
+                <!-- Sous-onglet didactique A : Repérer le GN -->
+                <div class="bg-[#24170d] p-8 rounded-3xl border border-amber-900 shadow-lg space-y-6"> <!-- Augmentation du padding (p-8) -->
+                        <span class="bg-amber-950 p-2 rounded-lg text-amber-400">🔍</span>
+                        Comment trouver un groupe du nom dans une phrase ?
+                    </h3>
+                    <p class="text-xs text-stone-300 uppercase tracking-widest font-bold">Méthode du détective</p>
+                    
+                    <ul class="space-y-3 text-sm text-stone-200">
+                        <li class="flex items-start gap-2">
+                            <span class="bg-amber-700 text-white font-black px-2 py-0.5 rounded text-xs mt-0.5">1</span>
+                            <div><strong>Je repère le nom noyau.</strong> C'est le mot chef qui désigne une personne, un animal ou une chose.</div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="bg-amber-700 text-white font-black px-2 py-0.5 rounded text-xs mt-0.5">2</span>
+                            <div><strong>Je regarde si un déterminant l'accompagne.</strong> Il se place habituellement devant le nom.</div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="bg-amber-700 text-white font-black px-2 py-0.5 rounded text-xs mt-0.5">3</span>
+                            <div><strong>Je regarde s'il y a une ou des expansions (adjectifs).</strong> Ils viennent donner des précisions sur le nom noyau.</div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="bg-amber-700 text-white font-black px-2 py-0.5 rounded text-xs mt-0.5">4</span>
+                            <div><strong>J'identifie tout le groupe du nom (GN) au complet.</strong></div>
+                        </li>
+                    </ul>
+
+                    <!-- Simulateur interactif de repérage -->
+                    <div class="bg-[#170e08] p-4 rounded-2xl border border-[#4a2e18] mt-2">
+                        <span class="text-xs text-amber-500 font-bold uppercase block mb-2">Essayons ensemble : Touche les mots du GN</span>
+                        <div class="text-base font-bold flex flex-wrap gap-2 text-white py-2" id="discovery-sentence-1">
+                            <span class="px-2 py-1 bg-blue-900 rounded border border-blue-500 text-blue-100" title="Déterminant">Le</span>
+                            <span class="px-2 py-1 bg-green-950 rounded border border-green-700 text-green-200" title="Adjectif">petit</span>
+                            <span class="px-2 py-1 bg-red-950 rounded border border-red-800 text-red-200 font-black" title="Nom Noyau (Chef)">explorateur</span>
+                            <span class="px-2 py-1 text-gray-400">avance</span>
+                            <span class="px-2 py-1 text-gray-400">doucement.</span>
+                        </div>
+                        <div class="mt-2 text-xs text-stone-400 leading-relaxed">
+                            <p><span class="text-red-400">■</span> <strong>Nom noyau :</strong> explorateur (Masculin, Singulier)</p>
+                            <p><span class="text-blue-400">■</span> <strong>Déterminant :</strong> Le (Masculin, Singulier)</p>
+                            <p><span class="text-green-400">■</span> <strong>Adjectif :</strong> petit (Masculin, Singulier)</p>
+                            <p class="mt-2 text-amber-300 font-bold">👉 Tout le bloc <span class="underline">"Le petit explorateur"</span> forme le Groupe du Nom (GN) !</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sous-onglet didactique B : Règle d'accord -->
+                <div class="bg-[#24170d] p-6 rounded-3xl border border-amber-900 shadow-lg space-y-4">
+                    <h3 class="text-lg font-black text-amber-300 flex items-center gap-2">
+                        <span class="bg-amber-950 p-2 rounded-lg text-amber-400">✨</span>
+                        Comment faire les accords dans le groupe du nom ?
+                    </h3>
+                    <p class="text-xs text-stone-300 uppercase tracking-widest font-bold">Règle de propagation (Donneur / Receveur)</p>
+                    
+                    <div class="space-y-3 text-sm text-stone-200">
+                        <p class="leading-relaxed">Le <strong>nom noyau est le donneur</strong>. Il donne son genre (masculin/féminin) et son nombre (singulier/pluriel) au déterminant et aux adjectifs qui sont des <strong>receveurs</strong>.</p>
+                        
+                        <div class="bg-[#170e08] p-4 rounded-2xl border border-amber-900 space-y-3">
+                            <p class="font-bold text-amber-400 text-center">⚙️ La machine à accorder</p>
+                            <p class="text-xs text-stone-400 text-center">Choisis le genre et le nombre pour voir l'accord se faire en direct :</p>
+                            
+                            <!-- Contrôles interactifs de la machine -->
+                            <div class="flex justify-center gap-2 my-2">
+                                <button onclick="updateAgreementWidget('M', 'S')" id="btn-ms" class="px-3 py-1 bg-amber-700 text-xs rounded-lg font-bold text-white transition">Masc. Singulier</button>
+                                <button onclick="updateAgreementWidget('F', 'S')" id="btn-fs" class="px-3 py-1 bg-stone-800 text-xs rounded-lg font-bold text-stone-300 transition">Fém. Singulier</button>
+                                <button onclick="updateAgreementWidget('F', 'P')" id="btn-fp" class="px-3 py-1 bg-stone-800 text-xs rounded-lg font-bold text-stone-300 transition">Fém. Pluriel</button>
+                            </div>
+
+                            <!-- Sortie visuelle interactive de l'accord -->
+                            <div class="bg-black/50 p-3 rounded-xl flex flex-col items-center justify-center border border-amber-500/30">
+                                <div class="flex gap-2 items-center text-lg md:text-xl font-black">
+                                    <span id="widget-det" class="text-blue-400 transition-all duration-300">un</span>
+                                    <span id="widget-adj" class="text-green-400 transition-all duration-300">vieux</span>
+                                    <span id="widget-noun" class="text-red-400 underline decoration-2 transition-all duration-300">meuble</span>
+                                </div>
+                                <div class="w-full mt-2 flex justify-between text-[10px] text-stone-400 font-mono">
+                                    <span class="text-blue-400">Dét (reçoit)</span>
+                                    <span class="text-green-400">Adj (reçoit)</span>
+                                    <span class="text-red-400 font-bold">Nom (DONNEUR)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Invitation à la pratique -->
+            <div class="text-center py-4">
+                <button onclick="switchTab('practice')" class="px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white font-black text-xl rounded-2xl shadow-lg hover:shadow-amber-500/20 transform hover:-translate-y-1 transition-all duration-200">
+                    <i class="fa-solid fa-gamepad mr-2"></i> Prêt pour l'exploration ? Commencer l'activité !
+                </button>
+            </div>
+
+        </section>
+
+        <!-- ================= ONGLET 2 : PRATIQUE GUIDÉE ================= -->
+        <section id="tab-practice" class="hidden space-y-6">
+            
+            <!-- Barre des Défis / Salles de la Cabane -->
+            <div class="grid grid-cols-4 gap-2 md:gap-4 text-center">
+                <button id="step-btn-1" class="py-3 rounded-xl font-bold text-xs md:text-sm bg-amber-800 text-white border-2 border-amber-600 flex flex-col items-center justify-center gap-1">
+                    <span>🗝️ Étape 1</span>
+                    <span class="hidden md:inline text-[10px]">La Porte de la cabane</span>
+                </button>
+                <button id="step-btn-2" class="py-3 rounded-xl font-bold text-xs md:text-sm bg-stone-900 text-stone-400 border border-stone-800 flex flex-col items-center justify-center gap-1 cursor-not-allowed">
+                    <span>🕯️ Étape 2</span>
+                    <span class="hidden md:inline text-[10px]">Le Coffre Mystérieux</span>
+                </button>
+                <button id="step-btn-3" class="py-3 rounded-xl font-bold text-xs md:text-sm bg-stone-900 text-stone-400 border border-stone-800 flex flex-col items-center justify-center gap-1 cursor-not-allowed">
+                    <span>🗺️ Étape 3</span>
+                    <span class="hidden md:inline text-[10px]">La Table Ronde</span>
+                </button>
+                <button id="step-btn-4" class="py-3 rounded-xl font-bold text-xs md:text-sm bg-stone-900 text-stone-400 border border-stone-800 flex flex-col items-center justify-center gap-1 cursor-not-allowed">
+                    <span>💎 Étape 4</span>
+                    <span class="hidden md:inline text-[10px]">Le Trésor Caché</span>
+                </button>
+            </div>
+
+            <!-- CONTENEUR DU DÉFI COURANT -->
+            <div id="challenge-card" class="bg-[#24170d] p-6 rounded-3xl border-2 border-[#8b5a2b] shadow-2xl relative">
+                
+                <!-- Zone de chargement dynamique des étapes du jeu -->
+                <div id="challenge-content" class="space-y-6">
+                    <!-- Généré par JavaScript -->
+                </div>
+
+                <!-- Zone d'actions communes au bas du défi -->
+                <div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-[#8b5a2b]/30">
+                    <button onclick="showHint()" class="px-5 py-2.5 bg-amber-950/80 border border-amber-500/50 hover:bg-amber-950 text-amber-300 font-bold text-sm rounded-xl flex items-center gap-2 transition duration-200">
+                        <span>💡</span> Obtenir un indice
+                    </button>
+                    <div class="flex gap-2">
+                        <button id="reset-btn" onclick="resetCurrentStep()" class="px-5 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-sm rounded-xl flex items-center gap-2 transition duration-200">
+                            <i class="fa-solid fa-rotate-left"></i> Recommencer l'étape
+                        </button>
+                        <button id="submit-btn" onclick="validateCurrentStep()" class="px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-extrabold text-base rounded-xl flex items-center gap-2 shadow-lg transition duration-200">
+                            Valider mes corrections <i class="fa-solid fa-circle-check"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Boîte de dialogue de notre compagnon Gribouille -->
+            <div class="bg-[#1f160e] p-4 rounded-2xl border border-amber-700/40 flex items-start gap-4">
+                <div class="text-3xl p-2 bg-amber-900/60 rounded-xl">🦉</div>
+                <div class="space-y-1">
+                    <p class="text-xs font-black text-amber-400 uppercase tracking-widest">Conseil de Gribouille, l'hibou orthopédagogue</p>
+                    <p id="buddy-tip" class="text-xs md:text-sm text-stone-200">
+                        Pour réussir, prends bien le temps d'identifier le genre (féminin ou masculin) et le nombre (singulier ou pluriel) du nom noyau. C'est la clé de toute la grammaire !
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="w-full bg-[#120a05] py-4 text-center border-t-2 border-amber-900/30">
+        <p class="text-xs text-amber-700/60 font-bold">&copy; 2026 - Je me corrige - Conçu pour les élèves du Québec (PFEQ)</p>
+    </footer>
+
+    <!-- MODAL POPUP DE SUCCÈS & RÉTROACTION (Sans alert()) -->
+    <div id="retroaction-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden transition-opacity duration-300">
+        <div class="parchment max-w-lg w-full p-6 md:p-8 rounded-3xl border-4 border-yellow-600 shadow-2xl text-center space-y-6 transform scale-95 transition-transform duration-300">
+            <div id="modal-icon" class="text-5xl md:text-6xl text-yellow-500 animate-bounce">🏆</div>
+            <h3 id="modal-title" class="text-2xl font-black text-[#5c3a1d]">Félicitations !</h3>
+            <p id="modal-body" class="text-sm md:text-base leading-relaxed text-[#4a2e18]">Vous venez de valider cette étape !</p>
+            <div class="bg-[#fffaee] p-4 rounded-xl border border-amber-500/30 text-xs md:text-sm text-[#5c3a1d] text-left leading-relaxed">
+                <strong class="block mb-1 text-amber-800 font-bold">Rappel pédagogique :</strong>
+                <span id="modal-pedagogy">Texte didactique...</span>
+            </div>
+            <div class="flex justify-center gap-4">
+                <button id="modal-action-btn" onclick="closeModalAndProceed()" class="px-8 py-3 bg-amber-700 hover:bg-amber-600 text-white font-black rounded-xl shadow-md transition duration-150">
+                    Étape suivante <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUDIO SYNTHESIS HELPER (Web Audio API) -->
+    <script>
+        // Génère des sons synthétiques simples sans dépendances de fichiers externes
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'success') {
+                    // Son de réussite aigu et joyeux (deux notes harmonieuses)
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); // E5
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                } else if (type === 'error') {
+                    // Son de défaite grave et étouffé
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'click') {
+                    // Clic discret
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }
+            } catch (e) {
+                console.log("Audio non supporté ou bloqué par le navigateur", e);
+            }
+        }
+    </script>
+
+    <!-- LOGIQUE DE L'APPLICATION ET DU JEU -->
+    <script>
+        // États d'avancement de l'utilisateur
+        let currentTab = 'discovery';
+        let currentStep = 1;
+        let score = 0;
+        let hintsLeft = 3;
+        let stars = 0;
+        
+        // Suivi des validations par étape
+        let stepCompleted = { 1: false, 2: false, 3: false, 4: false };
+
+        // Configuration du widget interactif de l'onglet 1
+        function updateAgreementWidget(gender, number) {
+            playSound('click');
+            const det = document.getElementById('widget-det');
+            const adj = document.getElementById('widget-adj');
+            const noun = document.getElementById('widget-noun');
+            
+            // On désactive tous les boutons du widget
+            document.getElementById('btn-ms').className = "px-3 py-1 bg-stone-800 text-xs rounded-lg font-bold text-stone-300 transition";
+            document.getElementById('btn-fs').className = "px-3 py-1 bg-stone-800 text-xs rounded-lg font-bold text-stone-300 transition";
+            document.getElementById('btn-fp').className = "px-3 py-1 bg-stone-800 text-xs rounded-lg font-bold text-stone-300 transition";
+
+            if (gender === 'M' && number === 'S') {
+                document.getElementById('btn-ms').className = "px-3 py-1 bg-amber-700 text-xs rounded-lg font-bold text-white transition";
+                det.innerText = "un";
+                adj.innerText = "vieux";
+                noun.innerText = "meuble";
+            } else if (gender === 'F' && number === 'S') {
+                document.getElementById('btn-fs').className = "px-3 py-1 bg-amber-700 text-xs rounded-lg font-bold text-white transition";
+                det.innerText = "une";
+                adj.innerText = "vieille";
+                noun.innerText = "cabane";
+            } else if (gender === 'F' && number === 'P') {
+                document.getElementById('btn-fp').className = "px-3 py-1 bg-amber-700 text-xs rounded-lg font-bold text-white transition";
+                det.innerText = "des";
+                adj.innerText = "vieilles";
+                noun.innerText = "cabanes";
+            }
+        }
+
+        // Changement d'onglets
+        function switchTab(tabId) {
+            playSound('click');
+            currentTab = tabId;
+            const discTab = document.getElementById('tab-discovery');
+            const pracTab = document.getElementById('tab-practice');
+            const discBtn = document.getElementById('tab-discovery-btn');
+            const pracBtn = document.getElementById('tab-practice-btn');
+
+            if (tabId === 'discovery') {
+                discTab.classList.remove('hidden');
+                pracTab.classList.add('hidden');
+                discBtn.classList.add('tab-active');
+                pracBtn.classList.remove('tab-active');
+            } else {
+                discTab.classList.add('hidden');
+                pracTab.classList.remove('hidden');
+                discBtn.classList.remove('tab-active');
+                pracBtn.classList.add('tab-active');
+                // S'assurer de charger l'étape courante
+                loadStep(currentStep);
+            }
+        }
+
+        // Mettre à jour l'affichage de progression
+        function updateProgressUI() {
+            let completedCount = 0;
+            for (let i = 1; i <= 4; i++) {
+                if (stepCompleted[i]) completedCount++;
+            }
+            const progressPercent = Math.round((completedCount / 4) * 100);
+            document.getElementById('global-progress').style.width = `${progressPercent}%`;
+            document.getElementById('progress-percent').innerText = `${progressPercent}%`;
+            document.getElementById('stars-counter').innerText = `⭐️ ${stars}`;
+            document.getElementById('hints-counter').innerText = `💡 ${hintsLeft}`;
+
+            // Mettre à jour l'état visuel des boutons d'étape en haut
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`step-btn-${i}`);
+                if (!btn) continue;
+                if (i === currentStep) {
+                    btn.className = "py-3 rounded-xl font-bold text-xs md:text-sm bg-amber-800 text-white border-2 border-amber-500 flex flex-col items-center justify-center gap-1 scale-105 shadow-md transition";
+                } else if (stepCompleted[i]) {
+                    btn.className = "py-3 rounded-xl font-bold text-xs md:text-sm bg-green-900 text-green-100 border-2 border-green-700 flex flex-col items-center justify-center gap-1 transition cursor-pointer";
+                    btn.onclick = () => { currentStep = i; loadStep(i); };
+                } else {
+                    btn.className = "py-3 rounded-xl font-bold text-xs md:text-sm bg-stone-900 text-stone-500 border border-stone-800 flex flex-col items-center justify-center gap-1 transition cursor-not-allowed";
+                    btn.onclick = null;
+                }
+            }
+        }
+    </script>
+
+    <script>
+        // Contenu dynamique de chaque étape de correction
+        const stepsData = {
+            1: {
+                title: "🗝️ Étape 1 : Le loquet de la porte",
+                subtitle: "Objectif : Corriger la délimitation de la phrase (Majuscules et points)",
+                instructions: "La porte d'entrée est scellée par une formule magique ! Pour l'ouvrir, tu dois replacer la majuscule au premier mot et ajouter un point d'arrêt à la fin de chaque phrase.",
+                // Modification de la phrase dans les données
+                phrase1: "soudain un jeune garçon découvre une vieille cabane abandonnée près de la forêt",
+                phrase2: "le petit explorateur avance doucement vers la porte mystérieuse",
+                hint: "Souviens-toi : une phrase commence toujours par une lettre majuscule et se termine par un point d'arrêt (comme un point ou un point d'exclamation).",
+                pedagogy: "Parfait ! Tu as identifié la délimitation de la phrase. Sans la majuscule et le point d'arrêt, le lecteur ne sait pas où commence et s'arrête l'idée de l'auteur. Tu gagnes le premier insigne : la Clé de la porte !"
+            },
+            2: {
+                title: "🕯️ Étape 2 : Le Coffre Poussiéreux",
+                subtitle: "Objectif : Accorder en Genre et en Nombre (Masculin / Féminin)",
+                instructions: "Tu as pénétré à l'intérieur ! Un coffre mystérieux repose sur le plancher de bois. L'inscription sur le dessus comporte des erreurs d'accord de genre.",
+                phrase: "dans la cabane une grande coffre poussiéreux cache un ancien trésor",
+                targetGN: "une grande coffre poussiéreux",
+                hint: "Trouve le mot chef (le nom noyau). Est-ce que 'coffre' est un mot masculin ou féminin ? Ajuste ensuite le déterminant et l'adjectif !",
+                pedagogy: "Génial ! Le mot 'coffre' est un nom masculin singulier. On doit donc écrire 'un grand coffre poussiéreux'. L'adjectif 'grand' perd sa marque de féminin (-e). Tu as gagné la Bougie magique !"
+            },
+            3: {
+                title: "🗺️ Étape 3 : La Table Ronde",
+                subtitle: "Objectif : Accorder en nombre (Singulier / Pluriel)",
+                instructions: "Une veille table en bois poussiéreuse se trouve au milieu de la pièce. Sur un parchemin froissé, une liste d'objets doit être corrigée en nombre.",
+                phrase: "le garçon observe les objets étrange sur la table ronde",
+                targetGN: "les objets étrange",
+                hint: "Cherche le nom noyau 'objets'. Est-il singulier ou pluriel ? L'adjectif qui l'accompagne doit lui obéir !",
+                pedagogy: "Magnifique ! Le nom noyau 'objets' est au pluriel (il se termine par un -s). L'adjectif qualificatif 'étrange' doit donc aussi prendre un -s pour s'accorder. Tu obtiens la Carte Secrète !"
+            },
+            4: {
+                title: "💎 Étape 4 : Le Trésor de la Cabane",
+                subtitle: "Objectif : Le grand rituel final d'écriture (Défi global)",
+                instructions: "Tu es presque au bout de l'aventure ! Le coffre s'ouvre, mais deux parchemins en lambeaux bloquent l'accès au trésor. Trouve et corrige toutes les fautes d'accord et de ponctuation !",
+                phrases: [
+                    { original: "une petite lampe brisée éclaire le sombre pièce", corrected: "Une petite lampe brisée éclaire la sombre pièce." },
+                    { original: "le jeune garçon trouve une carte secret dans la boîte en bois", corrected: "Le jeune garçon trouve une carte secrète dans la boîte en bois." }
+                ],
+                hint: "Attention : dans la phrase 1, 'pièce' est féminin, trouve son déterminant ! Dans la phrase 2, 'carte' est féminin, comment s'accorde l'adjectif 'secret' ? N'oublie pas les majuscules et les points !",
+                pedagogy: "Merveilleux ! Tu es un véritable expert de la grammaire moderne du GN ! Tu as su trouver les noms noyaux ('lampe', 'pièce', 'garçon', 'carte', 'boîte'), propager les accords de genre et nombre, et baliser les phrases avec rigueur. Le trésor de la cabane est à toi !"
+            }
+        };
+
+        // Charger une étape de jeu
+        function loadStep(stepNumber) {
+            currentStep = stepNumber;
+            const content = document.getElementById('challenge-content');
+            const data = stepsData[stepNumber];
+
+            let html = `
+                <div class="flex items-center justify-between border-b border-[#8b5a2b]/30 pb-3">
+                    <div>
+                        <h3 class="text-xl font-extrabold text-amber-400">${data.title}</h3>
+                        <p class="text-xs text-stone-300 font-semibold uppercase mt-0.5">${data.subtitle}</p>
+                    </div>
+                    <span class="text-3xl">${stepNumber === 1 ? '🚪' : stepNumber === 2 ? '📦' : stepNumber === 3 ? '🗺️' : '💎'}</span>
+                </div>
+                <p class="text-sm md:text-base leading-relaxed text-stone-200 bg-[#352315] p-4 rounded-2xl border border-amber-800">${data.instructions}</p>
+            `;
+
+            if (stepNumber === 1) {
+                /* ÉTAPE 1 : INTERFACE DE CORRECTION DES MAJUSCULES & POINTS */
+                html += `
+                    <div class="space-y-8 py-6"> <!-- Augmentation de l'espace (space-y-8) et padding vertical (py-6) -->
+                        <div class="bg-[#170e08] p-6 rounded-2xl border border-[#4a2e18] space-y-6"> <!-- Augmentation du padding (p-6) -->
+                            <span class="text-sm font-bold text-amber-500 uppercase block mb-4">Clique sur les lettres ou les menus déroulants pour corriger :</span>
+                            
+                            <!-- Phrase 1 (Modifiée avec soudain) -->
+                            <div class="flex items-baseline text-lg md:text-xl font-black bg-[#281b11] p-4 rounded-xl border border-[#8b5a2b]/30 leading-loose">
+                                <button onclick="toggleCapital('p1-cap')" id="p1-cap" class="px-1 py-0.5 bg-amber-950 text-amber-400 rounded hover:bg-amber-900 border border-amber-700 leading-none cursor-pointer transition">s</button>
+                                <span class="text-stone-300">oudain un jeune garçon découvre une vieille cabane abandonnée près de la forêt</span>
+                                <select id="p1-punc" class="bg-amber-950 text-amber-400 px-1 py-0.5 rounded border border-amber-700 focus:outline-none font-bold text-base cursor-pointer ml-1">
+                                    <option value="">[ ? ]</option>
+                                    <option value=".">.</option>
+                                    <option value="?">?</option>
+                                    <option value="!">!</option>
+                                </select>
+                            </div>
+
+                            <!-- Phrase 2 -->
+                            <div class="flex items-baseline text-lg md:text-xl font-black bg-[#281b11] p-4 rounded-xl border border-[#8b5a2b]/30 leading-loose">
+                                <button onclick="toggleCapital('p2-cap')" id="p2-cap" class="px-1 py-0.5 bg-amber-950 text-amber-400 rounded hover:bg-amber-900 border border-amber-700 leading-none cursor-pointer transition">l</button>
+                                <span class="text-stone-300">e petit explorateur avance doucement vers la porte mystérieuse</span>
+                                <select id="p2-punc" class="bg-amber-950 text-amber-400 px-1 py-0.5 rounded border border-amber-700 focus:outline-none font-bold text-base cursor-pointer ml-1">
+                                    <option value="">[ ? ]</option>
+                                    <option value=".">.</option>
+                                    <option value="?">?</option>
+                                    <option value="!">!</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (stepNumber === 2) {
+                /* ÉTAPE 2 : ACCORD DE GENRE DU COFFRE */
+                html += `
+                    <div class="space-y-4 py-4">
+                        <div class="bg-[#170e08] p-5 rounded-2xl border border-[#4a2e18] text-center space-y-4">
+                            <span class="text-xs font-bold text-stone-400 block uppercase">Voici la phrase gravée :</span>
+                            <p class="text-lg md:text-xl font-bold text-stone-300 italic">
+                                " dans la cabane <span class="text-amber-400 font-extrabold underline decoration-2 decoration-amber-500">une grande coffre poussiéreux</span> cache un ancien trésor "
+                            </p>
+                        </div>
+
+                        <!-- Éléments de manipulation didactique -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-[#2a1a0f] p-4 rounded-xl border border-[#8b5a2b]/30 text-center">
+                                <span class="block text-xs text-amber-500 font-bold mb-2">1. TROUVE LE NOM NOYAU</span>
+                                <p class="text-xs text-stone-300 mb-2">Quel est le chef du groupe du nom ?</p>
+                                <select id="s2-noun" class="w-full bg-[#170e08] text-amber-400 p-2.5 rounded-lg border border-amber-700 font-bold text-sm">
+                                    <option value="">-- Choisis --</option>
+                                    <option value="grande">grande</option>
+                                    <option value="coffre">coffre</option>
+                                    <option value="poussiéreux">poussiéreux</option>
+                                </select>
+                            </div>
+                            
+                            <div class="bg-[#2a1a0f] p-4 rounded-xl border border-[#8b5a2b]/30 text-center">
+                                <span class="block text-xs text-amber-500 font-bold mb-2">2. GENRE ET NOMBRE</span>
+                                <p class="text-xs text-stone-300 mb-2">Identifie son genre et nombre :</p>
+                                <select id="s2-gender-number" class="w-full bg-[#170e08] text-amber-400 p-2.5 rounded-lg border border-amber-700 font-bold text-sm">
+                                    <option value="">-- Choisis --</option>
+                                    <option value="FS">Féminin Singulier</option>
+                                    <option value="MS">Masculin Singulier</option>
+                                    <option value="MP">Masculin Pluriel</option>
+                                </select>
+                            </div>
+
+                            <div class="bg-[#2a1a0f] p-4 rounded-xl border border-[#8b5a2b]/30 text-center flex flex-col justify-between">
+                                <span class="block text-xs text-amber-500 font-bold mb-1">3. AJUSTE LE GN</span>
+                                <p class="text-xs text-stone-300 mb-1">Sélectionne la correction parfaite :</p>
+                                <select id="s2-correction" class="w-full bg-[#170e08] text-amber-400 p-2.5 rounded-lg border border-amber-700 font-bold text-sm">
+                                    <option value="">-- Choisis --</option>
+                                    <option value="une grande coffre poussiéreux">une grande coffre poussiéreux</option>
+                                    <option value="un grand coffre poussiéreuse">un grand coffre poussiéreuse</option>
+                                    <option value="un grand coffre poussiéreux">un grand coffre poussiéreux</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (stepNumber === 3) {
+                /* ÉTAPE 3 : ACCORD EN NOMBRE SUR LA TABLE RONDE */
+                html += `
+                    <div class="space-y-4 py-4">
+                        <div class="bg-[#170e08] p-5 rounded-2xl border border-[#4a2e18] text-center space-y-4">
+                            <span class="text-xs font-bold text-stone-400 block uppercase">Phrase à corriger :</span>
+                            <p class="text-lg md:text-xl font-bold text-stone-300 italic">
+                                " le garçon observe <span class="text-amber-400 font-extrabold underline decoration-2 decoration-amber-500">les objets étrange</span> sur la table ronde "
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-[#2a1a0f] p-4 rounded-xl border border-[#8b5a2b]/30 space-y-2">
+                                <span class="block text-xs text-amber-500 font-bold uppercase">1. Quel est le rôle du mot 'objets' ?</span>
+                                <select id="s3-role" class="w-full bg-[#170e08] text-stone-200 p-2.5 rounded-lg border border-amber-700 text-sm font-semibold">
+                                    <option value="">-- Sélectionner --</option>
+                                    <option value="adj">C'est un adjectif qualificatif</option>
+                                    <option value="nom">C'est le Nom Noyau (donneur d'accord)</option>
+                                    <option value="det">C'est un déterminant</option>
+                                </select>
+                                
+                                <span class="block text-xs text-amber-500 font-bold uppercase pt-2">2. Nombre de ce nom noyau :</span>
+                                <div class="flex gap-4 justify-center py-1">
+                                    <label class="flex items-center gap-2 text-stone-300 text-sm font-bold">
+                                        <input type="radio" name="s3-qty" value="S" class="accent-amber-500"> Singulier
+                                    </label>
+                                    <label class="flex items-center gap-2 text-stone-300 text-sm font-bold">
+                                        <input type="radio" name="s3-qty" value="P" class="accent-amber-500"> Pluriel
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="bg-[#2a1a0f] p-4 rounded-xl border border-[#8b5a2b]/30 flex flex-col justify-center space-y-3">
+                                <span class="block text-xs text-amber-500 font-bold uppercase text-center">3. Corrige l'adjectif 'étrange'</span>
+                                <p class="text-xs text-stone-300 text-center">Tape la forme correcte de l'adjectif pour s'accorder avec son noyau :</p>
+                                <div class="flex justify-center">
+                                    <input type="text" id="s3-text-input" placeholder="Écris l'adjectif ici..." class="bg-[#170e08] text-amber-400 font-black text-center p-3 rounded-lg border-2 border-amber-700 w-full max-w-xs focus:outline-none focus:border-amber-500 text-base">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (stepNumber === 4) {
+                /* ÉTAPE 4 : GRAND RITUEL DÉFI FINAL DE CORRECTION DE TEXTE */
+                html += `
+                    <div class="space-y-4 py-4">
+                        <p class="text-xs font-bold text-amber-500 uppercase tracking-widest">Corrige directement les zones encadrées dans le parchemin poussiéreux :</p>
+                        
+                        <div class="bg-[#170e08] p-5 rounded-2xl border border-amber-900/40 space-y-6">
+                            
+                            <!-- Défi final Phrase 1 -->
+                            <div class="space-y-2">
+                                <div class="text-xs text-stone-400 flex items-center gap-1 font-bold">
+                                    <span>Phrase 1 :</span>
+                                    <span class="italic text-stone-500 font-normal">"une petite lampe brisée éclaire le sombre pièce"</span>
+                                </div>
+                                <div class="flex flex-wrap items-baseline text-sm md:text-base font-black bg-[#281b11] p-3 rounded-xl border border-[#8b5a2b]/30 leading-relaxed">
+                                    <!-- Majuscule -->
+                                    <select id="s4-p1-cap" class="bg-amber-950 text-amber-400 px-1 py-0.5 rounded border border-amber-700 focus:outline-none text-xs leading-none mr-[1px] cursor-pointer">
+                                        <option value="u">u</option>
+                                        <option value="U">U</option>
+                                    </select>
+                                    <span class="text-stone-300">ne petite lampe brisée éclaire&nbsp;</span>
+                                    <!-- Déterminant erroné -->
+                                    <select id="s4-p1-det" class="bg-amber-950 text-amber-400 px-1 py-0.5 rounded border border-amber-700 focus:outline-none text-xs cursor-pointer">
+                                        <option value="le">le</option>
+                                        <option value="la">la</option>
+                                        <option value="les">les</option>
+                                    </select>
+                                    <span class="text-stone-300">&nbsp;sombre pièce</span>
+                                    <!-- Point -->
+                                    <select id="s4-p1-punc" class="bg-amber-950 text-amber-400 px-1 py-0.5 ml-[1px] rounded border border-amber-700 focus:outline-none text-xs cursor-pointer">
+                                        <option value="">[ ? ]</option>
+                                        <option value=".">.</option>
+                                        <option value="?">?</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Défi final Phrase 2 -->
+                            <div class="space-y-2">
+                                <div class="text-xs text-stone-400 flex items-center gap-1 font-bold">
+                                    <span>Phrase 2 :</span>
+                                    <span class="italic text-stone-500 font-normal">"le jeune garçon trouve une carte secret dans la boîte en bois"</span>
+                                </div>
+                                <div class="flex flex-wrap items-baseline text-sm md:text-base font-black bg-[#281b11] p-3 rounded-xl border border-[#8b5a2b]/30 leading-relaxed">
+                                    <!-- Majuscule -->
+                                    <select id="s4-p2-cap" class="bg-amber-950 text-amber-400 px-1 py-0.5 rounded border border-amber-700 focus:outline-none text-xs leading-none mr-[1px] cursor-pointer">
+                                        <option value="l">l</option>
+                                        <option value="L">L</option>
+                                    </select>
+                                    <span class="text-stone-300">e jeune garçon trouve une carte&nbsp;</span>
+                                    <!-- Adjectif erroné -->
+                                    <select id="s4-p2-adj" class="bg-amber-950 text-amber-400 px-1 py-0.5 rounded border border-amber-700 focus:outline-none text-xs cursor-pointer">
+                                        <option value="secret">secret</option>
+                                        <option value="secrets">secrets</option>
+                                        <option value="secrète">secrète</option>
+                                    </select>
+                                    <span class="text-stone-300">&nbsp;dans la boîte en bois</span>
+                                    <!-- Point -->
+                                    <select id="s4-p2-punc" class="bg-amber-950 text-amber-400 px-1 py-0.5 ml-[1px] rounded border border-amber-700 focus:outline-none text-xs cursor-pointer">
+                                        <option value="">[ ? ]</option>
+                                        <option value=".">.</option>
+                                        <option value="?">?</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+            }
+
+            content.innerHTML = html;
+            updateProgressUI();
+            
+            // Placer le conseil du hibou en fonction de l'étape
+            const buddyTips = {
+                1: "Regarde attentivement le début de chaque phrase. Les lettres miniuscules en début de phrase n'attendent qu'un clic pour devenir de grandes majuscules !",
+                2: "Le mot 'coffre' est-il masculin ou féminin ? Prononce à voix haute : un coffre ou une coffre ?",
+                3: "La marque du pluriel la plus courante pour un nom ou un adjectif qualificatif est la lettre 's'. Écris-la bien !",
+                4: "C'est l'ultime épreuve. Regarde le genre de 'pièce' et celui de 'carte' pour réussir les accords du déterminant et de l'adjectif !"
+            };
+            document.getElementById('buddy-tip').innerText = buddyTips[stepNumber];
+        }
+
+        // Action de majuscule interactive à l'étape 1
+        function toggleCapital(btnId) {
+            playSound('click');
+            const btn = document.getElementById(btnId);
+            if (btnId === 'p1-cap') {
+                btn.innerText = (btn.innerText === 's') ? 'S' : 's'; // Modification pour "soudain"
+            } else if (btnId === 'p2-cap') {
+                btn.innerText = (btn.innerText === 'l') ? 'L' : 'l';
+            }
+        }
+    </script>
+
+    <script>
+        // Gestion de l'affichage des indices (limités)
+        function showHint() {
+            if (hintsLeft > 0) {
+                hintsLeft--;
+                playSound('click');
+                const data = stepsData[currentStep];
+                
+                // On affiche l'indice dans une zone dédiée
+                const card = document.getElementById('challenge-card');
+                
+                // Retirer un éventuel ancien encadré d'indice pour ne pas doubler
+                const oldHint = document.getElementById('hint-box');
+                if (oldHint) oldHint.remove();
+
+                const hintBox = document.createElement('div');
+                hintBox.id = 'hint-box';
+                hintBox.className = "mt-4 p-4 bg-amber-950/95 border-2 border-amber-500 rounded-xl text-xs md:text-sm text-amber-200 shadow-inner flex items-start gap-3 animate-pulse";
+                hintBox.innerHTML = `
+                    <span class="text-xl">💡</span>
+                    <div>
+                        <strong class="block font-bold mb-1">Indice de Gribouille :</strong>
+                        <span>${data.hint}</span>
+                    </div>
+                `;
+                card.appendChild(hintBox);
+                updateProgressUI();
+            } else {
+                // Si plus d'indices
+                const card = document.getElementById('challenge-card');
+                const oldHint = document.getElementById('hint-box');
+                if (oldHint) oldHint.remove();
+                
+                const hintBox = document.createElement('div');
+                hintBox.id = 'hint-box';
+                hintBox.className = "mt-4 p-4 bg-red-950/90 border-2 border-red-500 rounded-xl text-xs text-red-200 text-center font-bold";
+                hintBox.innerHTML = "❌ Plus d'indices disponibles ! Fais confiance à ton esprit de détective !";
+                card.appendChild(hintBox);
+            }
+        }
+
+        // Réinitialiser l'étape courante
+        function resetCurrentStep() {
+            playSound('click');
+            // Supprimer l'encadré d'indice s'il y en a un
+            const oldHint = document.getElementById('hint-box');
+            if (oldHint) oldHint.remove();
+            
+            loadStep(currentStep);
+        }
+
+        // Soumission et validation de l'étape courante
+        function validateCurrentStep() {
+            const data = stepsData[currentStep];
+            let isValid = false;
+            let errorMessage = "";
+
+            if (currentStep === 1) {
+                const p1Cap = document.getElementById('p1-cap').innerText;
+                const p2Cap = document.getElementById('p2-cap').innerText;
+                const p1Punc = document.getElementById('p1-punc').value;
+                const p2Punc = document.getElementById('p2-punc').value;
+
+                // Validation ajustée pour "Soudain"
+                if (p1Cap === 'S' && p2Cap === 'L' && p1Punc === '.' && p2Punc === '.') {
+                    isValid = true;
+                } else {
+                    errorMessage = "Regarde bien : as-tu mis les deux majuscules en début de phrases et choisi le bon point d'arrêt '.' ?";
+                }
+            } else if (currentStep === 2) {
+                const s2Noun = document.getElementById('s2-noun').value;
+                const s2GenderNumber = document.getElementById('s2-gender-number').value;
+                const s2Correction = document.getElementById('s2-correction').value;
+
+                if (s2Noun === 'coffre' && s2GenderNumber === 'MS' && s2Correction === 'un grand coffre poussiéreux') {
+                    isValid = true;
+                } else {
+                    errorMessage = "Ce n'est pas tout à fait ça. Souviens-toi : 'coffre' est un nom Masculin Singulier ! Choisis les accords correspondants.";
+                }
+            } else if (currentStep === 3) {
+                const s3Role = document.getElementById('s3-role').value;
+                const s3QtyInput = document.querySelector('input[name="s3-qty"]:checked');
+                const s3Qty = s3QtyInput ? s3QtyInput.value : '';
+                const s3Text = document.getElementById('s3-text-input').value.trim().toLowerCase();
+
+                if (s3Role === 'nom' && s3Qty === 'P' && s3Text === 'étranges') {
+                    isValid = true;
+                } else {
+                    errorMessage = "Vérifie tes réponses : 'objets' est le nom noyau (Pluriel). L'adjectif 'étrange' doit s'écrire avec un -s !";
+                }
+            } else if (currentStep === 4) {
+                const s4P1Cap = document.getElementById('s4-p1-cap').value;
+                const s4P1Det = document.getElementById('s4-p1-det').value;
+                const s4P1Punc = document.getElementById('s4-p1-punc').value;
+                
+                const s4P2Cap = document.getElementById('s4-p2-cap').value;
+                const s4P2Adj = document.getElementById('s4-p2-adj').value;
+                const s4P2Punc = document.getElementById('s4-p2-punc').value;
+
+                if (s4P1Cap === 'U' && s4P1Det === 'la' && s4P1Punc === '.' &&
+                    s4P2Cap === 'L' && s4P2Adj === 'secrète' && s4P2Punc === '.') {
+                    isValid = true;
+                } else {
+                    errorMessage = "Certains détails t'ont échappé ! Vérifie l'accord du déterminant de 'pièce' (féminin), de l'adjectif 'secret' de 'carte' (féminin), ainsi que les majuscules et points d'arrêt.";
+                }
+            }
+
+            if (isValid) {
+                playSound('success');
+                stepCompleted[currentStep] = true;
+                stars += 3; // Récompense l'élève
+
+                // Lancement du modal personnalisé de réussite
+                openModal(data.pedagogy);
+            } else {
+                playSound('error');
+                
+                // Ajouter l'effet visuel de secousse sur la carte du défi
+                const card = document.getElementById('challenge-card');
+                card.classList.add('animate-shake');
+                setTimeout(() => card.classList.remove('animate-shake'), 300);
+
+                // Afficher un encadré d'erreur temporaire si pas de popup
+                const oldHint = document.getElementById('hint-box');
+                if (oldHint) oldHint.remove();
+
+                const errorBox = document.createElement('div');
+                errorBox.id = 'hint-box';
+                errorBox.className = "mt-4 p-4 bg-red-950/90 border-2 border-red-500 rounded-xl text-xs md:text-sm text-red-200 shadow-inner flex items-start gap-3";
+                errorBox.innerHTML = `
+                    <span class="text-xl">❌</span>
+                    <div>
+                        <strong class="block font-bold mb-1">Essaie encore !</strong>
+                        <span>${errorMessage}</span>
+                    </div>
+                `;
+                card.appendChild(errorBox);
+            }
+        }
+    </script>
+
+    <script>
+        function openModal(pedagogicalText) {
+            const modal = document.getElementById('retroaction-modal');
+            const pText = document.getElementById('modal-pedagogy');
+            const title = document.getElementById('modal-title');
+            const actionBtn = document.getElementById('modal-action-btn');
+            const icon = document.getElementById('modal-icon');
+
+            pText.innerText = pedagogicalText;
+
+            if (currentStep === 4) {
+                title.innerText = "🏆 QUÊTE TERMINÉE !";
+                icon.innerText = "👑";
+                actionBtn.innerHTML = `Recommencer le jeu <i class="fa-solid fa-rotate-left ml-2"></i>`;
+            } else {
+                title.innerText = "Bravo ! Étape franchie";
+                const icons = { 1: "🗝️", 2: "🕯️", 3: "🗺️" };
+                icon.innerText = icons[currentStep] || "✅";
+                actionBtn.innerHTML = `Étape suivante <i class="fa-solid fa-arrow-right ml-2"></i>`;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModalAndProceed() {
+            playSound('click');
+            const modal = document.getElementById('retroaction-modal');
+            modal.classList.add('hidden');
+
+            if (currentStep === 4) {
+                // Recommencer tout le jeu
+                currentStep = 1;
+                stepCompleted = { 1: false, 2: false, 3: false, 4: false };
+                stars = 0;
+                hintsLeft = 3;
+                loadStep(1);
+            } else {
+                // Passer à l'étape suivante
+                currentStep++;
+                loadStep(currentStep);
+            }
+        }
+
+        // Lancement au chargement de la page
+        window.onload = function() {
+            // Initialisation de la vue par défaut
+            switchTab('discovery');
+            updateProgressUI();
+        };
+    </script>
+
+</body>
+</html>
